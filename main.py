@@ -10,11 +10,14 @@ import uuid
 app = FastAPI()
 
 # Book Model
+
+
 class Book(BaseModel):
     name: str
     price: float
     genre: Literal["fiction", "non-fiction"]
     book_id: Optional[str] = uuid.uuid4().hex
+
 
 BOOKS_FILE = "books.json"
 BOOK_DATABASE = []
@@ -66,4 +69,10 @@ async def add_book(book: Book):
     return {"Message": f"Book {book} was added.", "book_id": book.book_id}
 
 
-# /get-book?id=...
+# /get-book?id=uuid
+@app.get('/get-book')
+async def get_book(book_id: str):
+    for book in BOOK_DATABASE:
+        if book["book_id"] == book_id:
+            return book
+    raise HTTPException(404, f"Book not found: {book_id}")
